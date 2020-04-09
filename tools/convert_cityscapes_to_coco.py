@@ -26,6 +26,7 @@ import json
 import os
 import imageio
 import sys
+import shutil
 
 import cityscapesscripts.evaluation.instances2dict_with_polygons as cs
 
@@ -117,6 +118,7 @@ def convert_cityscapes_instance_only(
         # 'gtCoarse/train_extra',
         # 'gtCoarse/val'
     ]
+    img_dir = "leftImg8bit_trainvaltest/leftImg8bit"
     json_name = 'instancesonly_filtered_%s.json'
     ends_in = '%s_polygons.json'
     img_id = 0
@@ -126,13 +128,13 @@ def convert_cityscapes_instance_only(
 
     category_instancesonly = [
         'person',
-        'rider',
-        'car',
-        'truck',
-        'bus',
-        'train',
-        'motorcycle',
-        'bicycle',
+#        'rider',
+#        'car',
+#        'truck',
+#        'bus',
+#        'train',
+#        'motorcycle',
+#        'bicycle',
     ]
 
     for data_set, ann_dir in zip(sets, ann_dirs):
@@ -194,7 +196,20 @@ def convert_cityscapes_instance_only(
                             ann['bbox'] = bboxs_util.xyxy_to_xywh(
                                 segms_util.polys_to_boxes(
                                     [ann['segmentation']])).tolist()[0]
-
+                            
+                            split, city = root.split(os.path.sep)[-2:]
+                            img_source_path = os.path.join(
+                                    data_dir,
+                                    img_dir,
+                                    split,
+                                    city,
+                                    image['file_name'])
+                            img_dest_path = os.path.join(out_dir,
+                                                    "images",
+                                                    image['file_name'])
+                            if not os.path.exists(img_dest_path):
+                                shutil.copyfile(img_source_path, img_dest_path)
+                                
                             annotations.append(ann)
 
         ann_dict['images'] = images
@@ -205,8 +220,9 @@ def convert_cityscapes_instance_only(
         print("Num categories: %s" % len(categories))
         print("Num images: %s" % len(images))
         print("Num annotations: %s" % len(annotations))
-        with open(os.path.join(out_dir, json_name % data_set), 'wb') as outfile:
+        with open(os.path.join(out_dir, "annotations", json_name % data_set), 'w') as outfile:
             outfile.write(json.dumps(ann_dict))
+            # json.dump(ann_dict, outfile)
 
 
 if __name__ == '__main__':
