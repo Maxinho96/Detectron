@@ -102,8 +102,8 @@ def convert_cityscapes_instance_only(
     """Convert from cityscapes format to COCO instance seg format - polygons"""
     sets = [
         'gtFine_val',
-        # 'gtFine_train',
-        # 'gtFine_test',
+        'gtFine_train',
+        'gtFine_test',
 
         # 'gtCoarse_train',
         # 'gtCoarse_val',
@@ -111,8 +111,8 @@ def convert_cityscapes_instance_only(
     ]
     ann_dirs = [
         'gtFine_trainvaltest/gtFine/val',
-        # 'gtFine_trainvaltest/gtFine/train',
-        # 'gtFine_trainvaltest/gtFine/test',
+        'gtFine_trainvaltest/gtFine/train',
+        'gtFine_trainvaltest/gtFine/test',
 
         # 'gtCoarse/train',
         # 'gtCoarse/train_extra',
@@ -128,7 +128,7 @@ def convert_cityscapes_instance_only(
 
     category_instancesonly = [
         'person',
-#        'rider',
+        'rider',
 #        'car',
 #        'truck',
 #        'bus',
@@ -170,6 +170,8 @@ def convert_cityscapes_instance_only(
                     for object_cls in objects:
                         if object_cls not in category_instancesonly:
                             continue  # skip non-instance categories
+                        if object_cls == "rider":
+                            object_cls = "person" # Collapse rider into person
 
                         for obj in objects[object_cls]:
                             if obj['contours'] == []:
